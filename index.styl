@@ -1,0 +1,84 @@
+html, body
+  margin 0
+  padding 0
+  border none
+  height 100%
+
+// see: https://www.html5rocks.com/ja/tutorials/dnd/basics/
+[draggable]
+  -moz-user-select none
+  -khtml-user-select none;
+  -webkit-user-select none;
+  user-select none
+  -khtml-user-drag element
+  -webkit-user-drag element
+
+body
+  font-family Helvetica
+
+#page_header
+  position fixed
+  display block
+  height 30px
+  width 100%
+  z-index 150
+  background-color #3A7563
+  color white
+  text-align center
+
+  h1
+    margin 0
+    font-size 1.7rem
+
+#container
+  height 100%
+
+#editor
+  display flex
+  height 100%
+  width 5000px
+
+#focuses
+  position fixed
+  height 100%
+  width 200px
+  z-index 100
+  padding-top 30px
+  background-color #392F2F
+
+#tree
+  position relative
+  top 30px
+  left 200px
+  height 2000px
+  width 5000px
+  background-color #E6D3A7
+  // see: http://codepen.io/KazuyoshiGoto/pen/Gywcd
+  background-image linear-gradient(transparent 98%, #59A985 2%),
+                   linear-gradient(90deg, transparent 98%, #59A985 2%)
+  background-position 80px 80px
+  background-size 80px 80px // width:height = 100:130
+  background-repeat repeat
+  box-sizing border-box
+  border 10px solid #59A985
+  overflow-y scroll
+
+#pointer
+  display none
+  position absolute
+  left 0
+  top 0
+  background-color #FA4659
+  width 20px
+  height 20px
+  pointer-events none // 反応しないようにして、treeにドラッグできるようにする
+
+.focus
+  background-color #3A7563
+  color white
+  width 110px
+  font-size 0.7rem
+  height 1.5em
+  margin 10px auto
+  text-align center
+  cursor move
