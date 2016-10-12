@@ -46,6 +46,9 @@ Creator.prototype = {
     this.treeElm.addEventListener("drop", function(e){ self.onDrop(e); }, false);
     this.treeElm.addEventListener("dragover", function(e){ self.onDragOver(e); }, false);
 
+    this.focusesElm.addEventListener("drop", function(e){ self.onDropOnFocuses(e); }, false);
+    this.focusesElm.addEventListener("dragover", function(e){ self.onDragOverFocuses(e); }, false);
+
     this.addFocusFormElm.addEventListener("keypress", function(e){ self.onKeyPress(e); }, false);
   },
 
@@ -67,7 +70,7 @@ Creator.prototype = {
     var self = this;
 
     var id = e.dataTransfer.getData("text");
-    var focusElm = document.querySelector(".focus[data-id='" + id + "']");
+    var focusElm = this.getFocusElm(id);
     focusElm.style.position = "absolute";
     focusElm.style.display = "inline-block";
     focusElm.style.margin = "0";
@@ -92,11 +95,29 @@ Creator.prototype = {
   },
 
   onDragOver: function(e) {
-     // focusElmではなくマウスカーソルに最も近い格子点を探す
+    // focusElmではなくマウスカーソルに最も近い格子点を探す
     var grid = this.findClosestGridPoint(e.offsetX, e.offsetY);
     this.pointerElm.style.left = grid[0] - 10 + "px"; // 中央揃えの分だけ左にずらす
     this.pointerElm.style.top = grid[1] - 10 + "px";
 
+    e.preventDefault();
+    return false;
+  },
+
+  onDropOnFocuses: function(e) {
+    var id = e.dataTransfer.getData("text");
+    var focusElm = this.getFocusElm(id);
+    focusElm.style.position = "static";
+    focusElm.style.display = "block";
+    focusElm.style.margin = "10px auto";
+
+    focusElm.parentNode.removeChild(focusElm); // 親から削除
+    this.focusesElm.appendChild(focusElm);
+
+    this.resultElm.value = this.generate(); // コード生成
+  },
+
+  onDragOverFocuses: function(e) {
     e.preventDefault();
     return false;
   },
@@ -147,6 +168,10 @@ Creator.prototype = {
 
       return false;
     }
+  },
+
+  getFocusElm: function(id) {
+    return document.querySelector(".focus[data-id='" + id + "']");
   },
 
   addFocusElm: function(focus, id) {
