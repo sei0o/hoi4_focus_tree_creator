@@ -62,9 +62,13 @@ Creator.prototype = {
       if (idMatch !== null) {
         let id = idMatch[1];
         let content = "focus = {\n" + focusCode;
+        let x = parseInt(focusCode.match(/x\s=\s(\d+)/i)[1], 10);
+        let y = parseInt(focusCode.match(/y\s=\s(\d+)/i)[1], 10);
 
         focuses.push({
           id: id,
+          x: x,
+          y: y,
           content: content
         });
       }
@@ -107,6 +111,8 @@ Creator.prototype = {
     focusElm.style.left = (grid[0] - focusElm.clientWidth / 2) + "px"; // 中央揃え
     focusElm.style.top = (grid[1] - focusElm.clientHeight / 2) + "px";
 
+    // x, y を変更
+
     if (focusElm.parentNode == this.focusesElm) { // focusesElmからdropされたとき
       this.focusesElm.removeChild(focusElm);
       this.treeElm.appendChild(focusElm);
@@ -143,6 +149,21 @@ Creator.prototype = {
   onDragOverFocuses: function(e) {
     e.preventDefault();
     return false;
+  },
+
+  placeFocus: function(focus, index, x, y) {
+    var focusElm = this.getFocusElm(index);
+    focusElm.style.position = "absolute";
+    focusElm.style.display = "inline-block";
+    focusElm.style.margin = "0";
+
+    focusElm.style.left = x - focusElm.clientWidth / 2 + "px"; // 中央揃え
+    focusElm.style.top = y - focusElm.clientHeight / 2 + "px";
+
+    if (focusElm.parentNode == this.focusesElm) {
+      this.focusesElm.removeChild(focusElm);
+      this.treeElm.appendChild(focusElm);
+    }
   },
 
   findClosestGridPoint: function(x, y) { // x, y は左上基準
@@ -215,9 +236,13 @@ Creator.prototype = {
 
   updateFocusElm: function() {
     this.focusesElm.innerHTML = "";
+    for (let focusElm of document.querySelectorAll(".focus")) {
+      focusElm.parentNode.removeChild(focusElm);
+    }
 
     for (var i = 0; i < this.focuses.length; i++) {
       this.addFocusElm(this.focuses[i].id, i);
+      this.placeFocus(this.focuses[i], i, (this.focuses[i].x + 1) * this.GRID, (this.focuses[i].y + 1) * this.GRID);
     }
   },
 
