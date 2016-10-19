@@ -52,6 +52,29 @@ Creator.prototype = {
     this.addFocusFormElm.addEventListener("keypress", function(e){ self.onKeyPress(e); }, false);
   },
 
+  importFocuses: function(code) {
+    var focusCodes = code.split(/focus\s\=\s{/);
+    let focuses = [];
+
+    for (let focusCode of focusCodes) {
+      let idMatch = focusCode.match(/\s+id\s=\s(.+)\n/i);
+
+      if (idMatch !== null) {
+        let id = idMatch[1];
+        let content = "focus = {\n" + focusCode;
+
+        focuses.push({
+          id: id,
+          content: content
+        });
+      }
+    }
+
+    this.focuses = focuses;
+    this.updateFocusElm();
+    this.generate();
+  },
+
   onDragStart: function(e) {
     e.target.style.opacity = "0.4";
     this.pointerElm.style.display = "block";
@@ -190,6 +213,14 @@ Creator.prototype = {
     return focusElm;
   },
 
+  updateFocusElm: function() {
+    this.focusesElm.innerHTML = "";
+
+    for (var i = 0; i < this.focuses.length; i++) {
+      this.addFocusElm(this.focuses[i].id, i);
+    }
+  },
+
   generate: function() {
     var focus = "";
     var focusElms = document.querySelectorAll("#tree .focus");
@@ -229,3 +260,7 @@ var creator = new Creator(
   document.getElementById("copy_result"),
   document.getElementById("result")
 );
+
+document.getElementById("import").addEventListener("click", function(e) {
+  creator.importFocuses(document.getElementById("import_code").value);
+});
