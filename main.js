@@ -61,9 +61,11 @@ Creator.prototype = {
 
       if (idMatch !== null) {
         let id = idMatch[1];
-        let content = "focus = {\n" + focusCode;
-        let x = parseInt(focusCode.match(/x\s=\s(\d+)/i)[1], 10);
-        let y = parseInt(focusCode.match(/y\s=\s(\d+)/i)[1], 10);
+        let content = "focus = {" + focusCode;
+
+        // x, y を取得
+        let x = parseInt(focusCode.match(/\s+x\s=\s(\d+)/i)[1], 10);
+        let y = parseInt(focusCode.match(/\s+y\s=\s(\d+)/i)[1], 10);
 
         focuses.push({
           id: id,
@@ -111,7 +113,9 @@ Creator.prototype = {
     focusElm.style.left = (grid[0] - focusElm.clientWidth / 2) + "px"; // 中央揃え
     focusElm.style.top = (grid[1] - focusElm.clientHeight / 2) + "px";
 
-    // x, y を変更
+    // x, y を変更(updateFocusElmなどではfocusesの順に要素を追加しているので、data-id == focusesのインデックス)
+    this.focuses[id].x = grid[0] / this.GRID;
+    this.focuses[id].y = grid[1] / this.GRID;
 
     if (focusElm.parentNode == this.focusesElm) { // focusesElmからdropされたとき
       this.focusesElm.removeChild(focusElm);
@@ -206,8 +210,13 @@ Creator.prototype = {
     if (e.keyCode == 13) {
       e.preventDefault();
 
-      this.focuses.push(e.target.value);
-      this.addFocusElm(e.target.value,  document.querySelectorAll("#tree .focus").length);
+      let focus = {
+        id: e.target.value,
+        content: null
+      };
+
+      this.focuses.push(focus);
+      this.addFocusElm(focus,  document.querySelectorAll("#tree .focus").length);
       e.target.value = "";
 
       return false;
@@ -227,7 +236,7 @@ Creator.prototype = {
     focusElm.dataset.id = id;
     focusElm.addEventListener("dragstart", function(e){ self.onDragStart(e); }, false); // どうしてfunctionで囲むとthisがちゃんとcreatorUIになるのだろうか
     focusElm.addEventListener("dragend",   function(e){ self.onDragEnd(e); },   false);
-    focusElm.innerHTML = focus;
+    focusElm.innerHTML = focus.id;
 
     this.focusesElm.appendChild(focusElm);
 
@@ -241,38 +250,54 @@ Creator.prototype = {
     }
 
     for (var i = 0; i < this.focuses.length; i++) {
-      this.addFocusElm(this.focuses[i].id, i);
+      this.addFocusElm(this.focuses[i], i);
       this.placeFocus(this.focuses[i], i, (this.focuses[i].x + 1) * this.GRID, (this.focuses[i].y + 1) * this.GRID);
     }
   },
 
   generate: function() {
-    var focus = "";
+    var focusCode = "";
     var focusElms = document.querySelectorAll("#tree .focus");
 
     for (var i = 0; i < focusElms.length; i++) {
       var focusElm = focusElms[i];
+
+      // tree上になければスルー
+      if (focusElm.parentNode !== this.treeElm) {
+        continue;
+      }
+
       var gridX = Math.floor(parseInt(focusElm.style.left, 10) / this.GRID);
       var gridY = Math.floor(parseInt(focusElm.style.top, 10) / this.GRID);
 
-      focus += `
+      let focus = this.focuses[i];
+      console.log(focus);
+      if (focus.content != null) {
+        focusCode += focus.content
+          .replace(/(\s+)x\s=\s(\d+)/i, "$1x = " + focus.x)
+          .replace(/(\s+)y\s=\s(\d+)/i, "$1y = " + focus.y);
+      } else {
+        focusCode += this.defaultFocusContent(focus.id, focus.x, focus.y);
+      }
+    }
+
+    return focusCode;
+  },
+
+  defaultFocusContent: function(id, x, y) {
+    return `
 focus = {
-  id = ${focusElm.innerHTML}
+  id = ${id}
   icon = GFX_goal_generic_allies_build_infantry
-  x = ${gridX}
-  y = ${gridY}
+  x = ${x}
+  y = ${y}
   cost = 10
-
   available_if_capitulated = yes
-
   completion_reward = {
   }
 }
-      `.toString();
-    }
-
-    return focus;
-  },
+    `.toString();
+  }
 };
 
 var creator = new Creator(
