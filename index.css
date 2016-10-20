@@ -47,6 +47,9 @@ body {
   padding-top: 30px;
   background-color: #392f2f;
 }
+#focuses {
+  min-height: 300px;
+}
 #tree {
   position: relative;
   top: 30px;
