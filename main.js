@@ -204,8 +204,8 @@ Creator.prototype = {
         content: null
       };
 
+      this.addFocusElm(focus, this.focuses.length);
       this.focuses.push(focus);
-      this.addFocusElm(focus,  document.querySelectorAll("#tree .focus").length);
       e.target.value = "";
 
       return false;
