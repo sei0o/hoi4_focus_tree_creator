@@ -1,15 +1,4 @@
 var focuses = [
-  "royal_road",
-  "infrastructure_1",
-  "infrastructure_2",
-  "infrastructure_3",
-  "befriend_japan",
-  "union_with_japan",
-  "invade_china",
-  "shimokitazawa_union",
-  "unify_japan",
-  "befriend_usa",
-  "wonder_weapon"
 ];
 
 var Creator = function(focuses, editorElm, focusesElm, treeElm, pointerElm, addFocusFormElm, copyResultElm, resultElm) {
