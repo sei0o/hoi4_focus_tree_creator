@@ -103,8 +103,8 @@ Creator.prototype = {
     focusElm.style.top = (grid[1] - focusElm.clientHeight / 2) + "px";
 
     // x, y を変更(updateFocusElmなどではfocusesの順に要素を追加しているので、data-id == focusesのインデックス)
-    this.focuses[id].x = grid[0] / this.GRID;
-    this.focuses[id].y = grid[1] / this.GRID;
+    this.focuses[id].x = Math.floor(grid[0] / this.GRID) - 1; // なぜか-1しないとずれる
+    this.focuses[id].y = Math.floor(grid[1] / this.GRID) - 1;
 
     if (focusElm.parentNode == this.focusesElm) { // focusesElmからdropされたとき
       this.focusesElm.removeChild(focusElm);
@@ -256,11 +256,7 @@ Creator.prototype = {
         continue;
       }
 
-      var gridX = Math.floor(parseInt(focusElm.style.left, 10) / this.GRID);
-      var gridY = Math.floor(parseInt(focusElm.style.top, 10) / this.GRID);
-
       let focus = this.focuses[i];
-      console.log(focus);
       if (focus.content != null) {
         focusCode += focus.content
           .replace(/(\s+)x\s=\s(\d+)/i, "$1x = " + focus.x)
